@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build: ./src/auth-service
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_HOST=your_db_host
+      - DATABASE_NAME=your_db_name
+      - DATABASE_USER=your_db_user
+      - DATABASE_PASSWORD=your_db_password
+      - AUTH_TABLE=your_auth_table
+      - JWT_SECRET=your_jwt_secret
+
+  converter-service:
+    build: ./src/converter-service
+    depends_on:
+      - rabbitmq
+    environment:
+      - MONGODB_URI=your_mongodb_uri
+      - VIDEO_QUEUE=your_video_queue
+      - MP3_QUEUE=your_mp3_queue
+
+  gateway-service:
+    build: ./src/gateway-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+    environment:
+      - MONGODB_VIDEOS_URI=your_videos_mongodb_uri
+      - MONGODB_MP3S_URI=your_mp3s_mongodb_uri
+
+  notification-service:
+    build: ./src/notification-service
+    depends_on:
+      - rabbitmq
+    environment:
+      - GMAIL_ADDRESS=your_gmail_address
+      - GMAIL_PASSWORD=your_gmail_password
+      - MP3_QUEUE=your_mp3_queue
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
