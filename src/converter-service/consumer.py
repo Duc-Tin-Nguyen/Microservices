@@ -1,4 +1,6 @@
-import pika, sys, os, time
+import pika
+import sys
+import os
 from pymongo import MongoClient
 import gridfs
 from convert import to_mp3
@@ -11,9 +13,9 @@ def main():
     fs_videos = gridfs.GridFS(db_videos)
     fs_mp3s = gridfs.GridFS(db_mp3s)
 
-    # rabbitmq connection
+    # RabbitMQ connection
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host='rabbitmq',heartbeat=0)
+        pika.ConnectionParameters(host='localhost', heartbeat=0)
     )
     channel = connection.channel()
 
@@ -28,7 +30,7 @@ def main():
         queue=os.environ.get("VIDEO_QUEUE"), on_message_callback=callback
     )
 
-    print("Waitting for messages, to exit press CTRL+C")
+    print("Waiting for messages, to exit press CTRL+C")
 
     channel.start_consuming()
 

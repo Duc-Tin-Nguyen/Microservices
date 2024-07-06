@@ -1,5 +1,5 @@
-import os, requests
-
+import os
+import requests
 
 def token(request):
     if not "Authorization" in request.headers:
@@ -10,8 +10,14 @@ def token(request):
     if not token:
         return None, ("missing credentials", 401)
 
+    auth_service_address = os.getenv('AUTH_SERVICE_ADDRESS')
+    print(f"Auth Service Address: {auth_service_address}")
+    
+    if not auth_service_address:
+        return None, ("AUTH_SERVICE_ADDRESS environment variable not set", 500)
+
     response = requests.post(
-        f"http://{os.environ.get('AUTH_SVC_ADDRESS')}/validate",
+        f"http://{auth_service_address}/validate",
         headers={"Authorization": token},
     )
 
